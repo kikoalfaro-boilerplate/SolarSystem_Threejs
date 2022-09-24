@@ -1,5 +1,9 @@
-import './style.css'
+// https://trello.com/b/xVqjzlqh/solar-system-threejs
+// Main reference: https://i.dailymail.co.uk/1s/2020/01/13/15/23345186-0-image-a-17_1578929974592.jpg
+// https://threejs.org/examples/
 
+
+import './style.css'
 import * as THREE from 'three';
 
 // // BASIC SCENE SETUP
