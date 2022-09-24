@@ -4,16 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solar System</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300i,400" rel="stylesheet">
   </head>
   <body>
     <script type="module" src="main.js"></script>    
     <canvas id="bg">
     </canvas>
 
-    <div class="flex-container">
+    <!-- <div class="flex-container">
       <div id="planet-name" class="text">Earth</div>
       <div id="planet-radius" class="text">redius: 434</div>
       <div id="planet-distance" class="text">distance to Sun: 54543</div>
+   </div> -->
+
+   <div id="side-menu" class="flex-container-vertical hid">
+    <div class="text x">X</div>
+    <h1 id="planet-name" class="text">Earth</h1>
+    <div class="text">Terrestrial Planet</div>
+    <div class="text">
+      <img src="pictures/earth.png" style="max-width: 100%; margin-top: 35px;">
+      <!-- sfuma 4px photopea -->
+    </div>
+    <div class="text">Earth—our home planet—is the only place we know of so far that’s inhabited by living things. It's also the only planet in our solar system with liquid water on the surface.</div>
+    <div class="flex-container-horizontal">
+      <div id="planet-radius" class="text">Radius</div>
+      <div id="planet-distance" class="text">0.7 AU</div>
+    </div>
    </div>
 
   </body>
