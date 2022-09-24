@@ -67,15 +67,14 @@ class Planet{
 }
 
 
-
 start();
 update();
 
 
-function RefreshSelectedPlanetInfo(planetData) {
+function RefreshPlanetInfo(planetData) {
   planetNameElement.innerText = planetData.name;
-  planetRadiusElement.innerText = planetData.radiusInKm;
-  planetDistanceElement.innerText = planetData.distanceFromSunInAU;
+  planetRadiusElement.innerText = "Radius: " + planetData.radiusInKm + " km";
+  planetDistanceElement.innerText = "Distance from Sun: " + planetData.distanceFromSunInAU + " AU";
 }
 
 
@@ -89,20 +88,17 @@ function start() {
 
 function update(){ 
   requestAnimationFrame(update);
-  // sphere.rotation.y += 0.001;
   time++;
-
   planets.forEach(element => element.rotateAroundItself(0.001));
-
-
   renderer.render(scene, camera);
 }
 
 
 // on click - callback
-function objectClickHandler() {
+function objectClickHandler(planet) {
   // window.open('https://pericror.com/', '_blank');
-  console.log("click");
+  console.log("clicked: " + planet.getName());
+  RefreshPlanetInfo(planet.data);
 }
 
 
@@ -167,16 +163,16 @@ function setupLights() {
 }
 
 function drawAllPlanets() {
-  drawPlanet(new PlanetData("Sun", 1, 1), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
+  drawPlanet(new PlanetData("Sun", 695508, 0), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
 
-  drawPlanet(new PlanetData("Mercury", 1, 1), 0.25, 8 + offset, "Martian");
-  drawPlanet(new PlanetData("Venus", 1, 1), 0.75, 17 + offset, "Venusian");
-  drawPlanet(new PlanetData("Earth", 1, 1), 0.75, 30 + offset, "Terrestrial1");
-  drawPlanet(new PlanetData("Mars", 1, 1), 0.75, 45 + offset, "Martian");
-  drawPlanet(new PlanetData("Jupiter", 1, 1), 1.5, 70 + offset, "Gaseous1");
-  drawPlanet(new PlanetData("Saturn", 1, 1), 1, 100 + offset, "Saturn2", true);
-  drawPlanet(new PlanetData("Uranus", 1, 1), 0.75, 125 + offset, "Uranus");
-  drawPlanet(new PlanetData("Neptune", 1, 1), 0.75, 145 + offset, "Neptune");
+  drawPlanet(new PlanetData("Mercury", 2439.7, 0.4), 0.25, 8 + offset, "Martian");
+  drawPlanet(new PlanetData("Venus", 12104/2, 0.7), 0.75, 17 + offset, "Venusian");
+  drawPlanet(new PlanetData("Earth", 6371, 1), 0.75, 30 + offset, "Terrestrial1");
+  drawPlanet(new PlanetData("Mars", 6792/2, 1.5), 0.75, 45 + offset, "Martian");
+  drawPlanet(new PlanetData("Jupiter", 142984/2, 5.2), 1.5, 70 + offset, "Gaseous1");
+  drawPlanet(new PlanetData("Saturn", 120536/2, 9.5), 1, 100 + offset, "Saturn2", true);
+  drawPlanet(new PlanetData("Uranus", 51118/2, 19.8), 0.75, 125 + offset, "Uranus");
+  drawPlanet(new PlanetData("Neptune", 49528/2, 30.1), 0.75, 145 + offset, "Neptune");
 }
 
 // wanna create an object! - builder for things like the ring
@@ -194,7 +190,6 @@ function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = f
     sphere.scale.set(radius, radius, radius);
     sphere.position.x = sunXPosition + distanceToSunInUnits;
     sphere.rotateY(Math.PI/4);
-    sphere.callback = objectClickHandler;
     scene.add(sphere);
 
     if(hasRing){
@@ -209,6 +204,7 @@ function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = f
     }
 
     let planet = new Planet(name, sphere, ring);
+    sphere.callback = function(){ objectClickHandler(planet);};
     planets.push(planet);
   });
 
