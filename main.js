@@ -15,10 +15,33 @@ const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),  
 });
 
+const loader = new THREE.TextureLoader();
+loader.load('textures/background.png', function (texture) {
+  scene.background = texture;
+});
+
+
 let time = 0;
 
 const sunXPosition = -115;
 const offset = 50;
+let planets = [];
+
+
+class Planet{
+  constructor(name, mesh, ringMesh = null){
+    this.name = name;
+    this.mesh = mesh;
+    this.ringMesh = ringMesh;
+  }
+  
+  rotateAroundItself(angle){
+    this.mesh.rotateY(angle);
+  }
+}
+
+
+
 
 
 start();
@@ -35,6 +58,9 @@ function update(){
   requestAnimationFrame(update);
   // sphere.rotation.y += 0.001;
   time++;
+
+  planets.forEach(element => element.rotateAroundItself(0.001));
+
 
   renderer.render(scene, camera);
 }
@@ -65,26 +91,29 @@ function setupLights() {
 }
 
 function drawAllPlanets() {
-  drawPlanet(7, 0, "Volcanic"); // SUN - TODO add a cool shader!
+  drawPlanet("Sun", 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
 
-  drawPlanet(0.25, 8 + offset, "Martian");
-  drawPlanet(0.75, 17 + offset, "Venusian");
-  drawPlanet(0.75, 30 + offset, "Terrestrial1");
-  drawPlanet(0.75, 45 + offset, "Martian");
-  drawPlanet(1.5, 70 + offset, "Gaseous1");
-  drawPlanet(1, 100 + offset, "Saturn2", true);
-  drawPlanet(0.75, 125 + offset, "Uranus");
-  drawPlanet(0.75, 145 + offset, "Neptune");
+  drawPlanet("Mercury", 0.25, 8 + offset, "Martian");
+  drawPlanet("Venus", 0.75, 17 + offset, "Venusian");
+  drawPlanet("Earth", 0.75, 30 + offset, "Terrestrial1");
+  drawPlanet("Mars", 0.75, 45 + offset, "Martian");
+  drawPlanet("Jupiter", 1.5, 70 + offset, "Gaseous1");
+  drawPlanet("Saturn", 1, 100 + offset, "Saturn2", true);
+  drawPlanet("Uranus", 0.75, 125 + offset, "Uranus");
+  drawPlanet("Neptune", 0.75, 145 + offset, "Neptune");
 }
 
 // wanna create an object! - builder for things like the ring
-function drawPlanet(radius, distanceToSunInUnits, textureName, hasRing = false) {
+function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = false) {
 
   var loader = new THREE.TextureLoader();
   const texturePath = 'textures/' + textureName + '.png';
+
+  let ring = null;
+
   loader.load(texturePath, function (texture) {
     const sphereGeometry = new THREE.SphereGeometry(7, 20, 20);
-    const sphereMat = new THREE.MeshPhongMaterial({ map: texture, overdraw: 0.5});
+    const sphereMat = new THREE.MeshPhongMaterial({ map: texture});
     const sphere = new THREE.Mesh(sphereGeometry, sphereMat);
     sphere.scale.set(radius, radius, radius);
     sphere.position.x = sunXPosition + distanceToSunInUnits;
@@ -93,14 +122,17 @@ function drawPlanet(radius, distanceToSunInUnits, textureName, hasRing = false) 
 
     if(hasRing){
       const ringGeometry = new THREE.TorusGeometry(12, 3, 16, 100);
-      const ringMat = new THREE.MeshPhongMaterial({ map: texture, overdraw: 0.5});
-      const ring = new THREE.Mesh(ringGeometry, ringMat);
+      const ringMat = new THREE.MeshPhongMaterial({ map: texture});
+      ring = new THREE.Mesh(ringGeometry, ringMat);
       ring.scale.set(radius, radius, 0.05);
       ring.position.x = sunXPosition + distanceToSunInUnits;
       ring.rotateX(Math.PI/2.5);
       ring.rotateY(-Math.PI/8);
       scene.add(ring);
     }
+
+    let planet = new Planet(name, sphere, ring);
+    planets.push(planet);
   });
 
 
