@@ -27,14 +27,40 @@ const sunXPosition = -115;
 const offset = 50;
 let planets = [];
 
+// Cached HTML elements
+const planetNameElement = document.getElementById("planet-name");
+const planetRadiusElement = document.getElementById("planet-radius");
+const planetDistanceElement = document.getElementById("planet-distance");
+
+
+
+class PlanetData{
+  constructor(name, radiusInKm, distanceFromSunInAU){
+    this.name = name;
+    this.radiusInKm = radiusInKm;
+    this.distanceFromSunInAU = distanceFromSunInAU;
+  }
+}
 
 class Planet{
-  constructor(name, mesh, ringMesh = null){
-    this.name = name;
+  constructor(data, mesh, ringMesh = null){
+    this.data = data;
     this.mesh = mesh;
     this.ringMesh = ringMesh;
   }
   
+  getName(){
+    return this.data.name;
+  }
+
+  getRadiusInKm(){
+    return this.data.radiusInKm;
+  }
+
+  getDistanceFromSunInAU(){
+    return this.data.distanceFromSunInAU;
+  }
+
   rotateAroundItself(angle){
     this.mesh.rotateY(angle);
   }
@@ -42,10 +68,17 @@ class Planet{
 
 
 
-
-
 start();
 update();
+
+
+function RefreshSelectedPlanetInfo(planetData) {
+  planetNameElement.innerText = planetData.name;
+  planetRadiusElement.innerText = planetData.radiusInKm;
+  planetDistanceElement.innerText = planetData.distanceFromSunInAU;
+}
+
+
 
 function start() {
   setupScene();
@@ -64,6 +97,49 @@ function update(){
 
   renderer.render(scene, camera);
 }
+
+
+// on click - callback
+function objectClickHandler() {
+  // window.open('https://pericror.com/', '_blank');
+  console.log("click");
+}
+
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+
+// See https://stackoverflow.com/questions/12800150/catch-the-click-event-on-a-specific-mesh-in-the-renderer
+// Handle all clicks to determine of a three.js object was clicked and trigger its callback
+function onDocumentMouseDown(event) {
+  event.preventDefault();
+
+  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  var meshes = planets.map(function (v) {
+    return v.mesh;
+  });
+
+  var intersects = raycaster.intersectObjects(meshes);
+
+  if (intersects.length > 0) {
+    intersects[0].object.callback();
+  }
+}
+
+document.addEventListener('mousedown', onDocumentMouseDown, false);
+
+
+
+
+
+
+
+
+
 
 
 function setupScene() {
@@ -91,16 +167,16 @@ function setupLights() {
 }
 
 function drawAllPlanets() {
-  drawPlanet("Sun", 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
+  drawPlanet(new PlanetData("Sun", 1, 1), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
 
-  drawPlanet("Mercury", 0.25, 8 + offset, "Martian");
-  drawPlanet("Venus", 0.75, 17 + offset, "Venusian");
-  drawPlanet("Earth", 0.75, 30 + offset, "Terrestrial1");
-  drawPlanet("Mars", 0.75, 45 + offset, "Martian");
-  drawPlanet("Jupiter", 1.5, 70 + offset, "Gaseous1");
-  drawPlanet("Saturn", 1, 100 + offset, "Saturn2", true);
-  drawPlanet("Uranus", 0.75, 125 + offset, "Uranus");
-  drawPlanet("Neptune", 0.75, 145 + offset, "Neptune");
+  drawPlanet(new PlanetData("Mercury", 1, 1), 0.25, 8 + offset, "Martian");
+  drawPlanet(new PlanetData("Venus", 1, 1), 0.75, 17 + offset, "Venusian");
+  drawPlanet(new PlanetData("Earth", 1, 1), 0.75, 30 + offset, "Terrestrial1");
+  drawPlanet(new PlanetData("Mars", 1, 1), 0.75, 45 + offset, "Martian");
+  drawPlanet(new PlanetData("Jupiter", 1, 1), 1.5, 70 + offset, "Gaseous1");
+  drawPlanet(new PlanetData("Saturn", 1, 1), 1, 100 + offset, "Saturn2", true);
+  drawPlanet(new PlanetData("Uranus", 1, 1), 0.75, 125 + offset, "Uranus");
+  drawPlanet(new PlanetData("Neptune", 1, 1), 0.75, 145 + offset, "Neptune");
 }
 
 // wanna create an object! - builder for things like the ring
@@ -118,6 +194,7 @@ function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = f
     sphere.scale.set(radius, radius, radius);
     sphere.position.x = sunXPosition + distanceToSunInUnits;
     sphere.rotateY(Math.PI/4);
+    sphere.callback = objectClickHandler;
     scene.add(sphere);
 
     if(hasRing){
