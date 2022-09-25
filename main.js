@@ -39,15 +39,15 @@ loader.load('textures/background.png', function (texture) {
 
 // mesh should be a dynamic param. Use constructor + prototype modification?
 let planets = [
-  {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, textureName: "Volcanic", meshRadius: 7, meshDistanceToSun: 0, mesh: null, camPos: {"x": -90, "y": 0, "z": 50 }, camZoom: 0.773},
-  {name: "Mercury", radiusInKm:  2439.7, distanceFromSunInAU: 0.4, textureName: "Martian", meshRadius: 0.25, meshDistanceToSun: 58, mesh: null, camPos: {"x": -52, "y": 0, "z": 50 }, camZoom: 6},
-  {name: "Venus", radiusInKm:  6052, distanceFromSunInAU: 0.7, textureName: "Venusian", meshRadius: 0.75, meshDistanceToSun: 67, mesh: null, camPos: {"x": -45, "y": 0, "z": 50 }, camZoom: 6},
-  {name: "Earth", radiusInKm:  6371, distanceFromSunInAU: 1, textureName: "Terrestrial1", meshRadius: 0.75, meshDistanceToSun: 80, mesh: null, camPos: {"x": -35, "y": 0, "z": 50 }, camZoom: 6},
-  {name: "Mars", radiusInKm:  3396, distanceFromSunInAU: 1.5, textureName: "Martian", meshRadius: 0.5, meshDistanceToSun: 95, mesh: null, camPos: {"x": -20, "y": 0, "z": 50 }, camZoom: 7.78},
-  {name: "Jupiter", radiusInKm:  71492, distanceFromSunInAU: 5.2, textureName: "Gaseous1", meshRadius: 1.5, meshDistanceToSun: 120, mesh: null, camPos: {"x": 5, "y": 0.87, "z": 50 }, camZoom: 3.425},
-  {name: "Saturn", radiusInKm:  60268, distanceFromSunInAU: 9.5, textureName: "Saturn2", meshRadius: 1, meshDistanceToSun: 150, mesh: null, hasRing: true, camPos: {"x": 40, "y": 1.22, "z": 50 }, camZoom: 3.424},
-  {name: "Uranus", radiusInKm:  25559, distanceFromSunInAU: 19.8, textureName: "Uranus", meshRadius: 0.75, meshDistanceToSun: 175, mesh: null, camPos: {"x": 65, "y": 0, "z": 50 }, camZoom: 4.65},
-  {name: "Neptune", radiusInKm:  24764, distanceFromSunInAU: 30.1, textureName: "Neptune", meshRadius: 0.75, meshDistanceToSun: 195, mesh: null, camPos: {"x": 85, "y": 0, "z": 50 }, camZoom: 6}
+  {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, textureName: "Volcanic", meshRadius: 7, meshDistanceToSun: 0, mesh: null, camPos: {"x": -90, "y": 0, "z": 50 }, camZoom: 0.773, desc:"The Sun is a yellow dwarf star, a hot ball of glowing gases at the heart of our solar system. Its gravity holds everything from the biggest planets to tiny debris in its orbit.", type:"Yellow Dwarf Star"},
+  {name: "Mercury", radiusInKm:  2439.7, distanceFromSunInAU: 0.4, textureName: "Martian", meshRadius: 0.25, meshDistanceToSun: 58, mesh: null, camPos: {"x": -52, "y": 0, "z": 50 }, camZoom: 6, desc:"Mercury—the smallest planet in our solar system and closest to the Sun—is only slightly larger than Earth's Moon. Mercury is the fastest planet, zipping around the Sun every 88 Earth days.", type:"Terrestrial Planet"},
+  {name: "Venus", radiusInKm:  6052, distanceFromSunInAU: 0.7, textureName: "Venusian", meshRadius: 0.75, meshDistanceToSun: 67, mesh: null, camPos: {"x": -45, "y": 0, "z": 50 }, camZoom: 6, desc:"Venus spins slowly in the opposite direction from most planets. A thick atmosphere traps heat in a runaway greenhouse effect, making it the hottest planet in our solar system.", type:"Terrestrial Planet"},
+  {name: "Earth", radiusInKm:  6371, distanceFromSunInAU: 1, textureName: "Terrestrial1", meshRadius: 0.75, meshDistanceToSun: 80, mesh: null, camPos: {"x": -35, "y": 0, "z": 50 }, camZoom: 6, desc:"Earth—our home planet—is the only place we know of so far that’s inhabited by living things. It's also the only planet in our solar system with liquid water on the surface.", type:"Terrestrial Planet"},
+  {name: "Mars", radiusInKm:  3396, distanceFromSunInAU: 1.5, textureName: "Martian", meshRadius: 0.5, meshDistanceToSun: 95, mesh: null, camPos: {"x": -20, "y": 0, "z": 50 }, camZoom: 7.78, desc:"Mars is a dusty, cold, desert world with a very thin atmosphere. There is strong evidence Mars was—billions of years ago—wetter and warmer, with a thicker atmosphere.", type:"Terrestrial Planet"},
+  {name: "Jupiter", radiusInKm:  71492, distanceFromSunInAU: 5.2, textureName: "Gaseous1", meshRadius: 1.5, meshDistanceToSun: 120, mesh: null, camPos: {"x": 5, "y": 0.87, "z": 50 }, camZoom: 3.425, desc:"Jupiter is more than twice as massive than the other planets of our solar system combined. The giant planet's Great Red spot is a centuries-old storm bigger than Earth.", type:"Gas Giant"},
+  {name: "Saturn", radiusInKm:  60268, distanceFromSunInAU: 9.5, textureName: "Saturn2", meshRadius: 1, meshDistanceToSun: 150, mesh: null, hasRing: true, camPos: {"x": 40, "y": 1.22, "z": 50 }, camZoom: 3.424, desc:"Adorned with a dazzling, complex system of icy rings, Saturn is unique in our solar system. The other giant planets have rings, but none are as spectacular as Saturn's.", type:"Gas Giant"},
+  {name: "Uranus", radiusInKm:  25559, distanceFromSunInAU: 19.8, textureName: "Uranus", meshRadius: 0.75, meshDistanceToSun: 175, mesh: null, camPos: {"x": 65, "y": 0, "z": 50 }, camZoom: 4.65, desc:"Uranus—seventh planet from the Sun—rotates at a nearly 90-degree angle from the plane of its orbit. This unique tilt makes Uranus appear to spin on its side.", type:"Ice Giant"},
+  {name: "Neptune", radiusInKm:  24764, distanceFromSunInAU: 30.1, textureName: "Neptune", meshRadius: 0.75, meshDistanceToSun: 195, mesh: null, camPos: {"x": 85, "y": 0, "z": 50 }, camZoom: 6, desc:"Neptune—the eighth and most distant major planet orbiting our Sun—is dark, cold and whipped by supersonic winds. It was the first planet located through mathematical calculations, rather than by telescope.", type:"Ice Giant"}
 ];
 
 
@@ -89,6 +89,8 @@ const sunXPosition = -115;
 const planetNameElement = document.getElementById("planet-name");
 const planetRadiusElement = document.getElementById("planet-radius");
 const planetDistanceElement = document.getElementById("planet-distance");
+const planetDescription = document.getElementById("planet-desc");
+const planetType = document.getElementById("planet-type");
 
 let sideMenuElement = document.getElementById("side-menu");
 let isShowingSideMenu = false;
@@ -117,6 +119,8 @@ function refreshPlanetInfo(planet) {
   planetNameElement.innerText = planet.name;
   planetRadiusElement.innerText = "Radius:\n" + planet.radiusInKm + " km";
   planetDistanceElement.innerText = "Distance from Sun:\n" + planet.distanceFromSunInAU + " AU";
+  planetDescription.innerText = planet.desc;
+  planetType.innerText = planet.type;
 }
 
 // on click - callback
