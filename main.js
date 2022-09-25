@@ -5,12 +5,33 @@
 
 import './style.css'
 import * as THREE from 'three';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import { DefaultLoadingManager } from 'three';
+
 
 // // BASIC SCENE SETUP
 const scene = new THREE.Scene(); 
 const width = window.innerWidth;
 const height = window.innerHeight;
-let camera = new THREE.OrthographicCamera( width / - 16, width / 16, height / 16, height / - 16, 0.1, 1000 );
+
+const defaultCam = { left: width / - 16, right: width / 16, top: height / 16, bottom: height / - 16, near: 0.1, far: 1000, position: { x: 0, y: 0, z: 50 }, zoom: 1}
+let camera = new THREE.OrthographicCamera(defaultCam.left, defaultCam.right, defaultCam.top, defaultCam.bottom, defaultCam.near, defaultCam.far);
+
+let controls;
+
+function setupScene() {
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  resetCamera();
+  renderer.render(scene, camera);
+  // controls = new OrbitControls(camera, renderer.domElement);
+}
+
+
+
+
+
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),  
 });
@@ -20,52 +41,69 @@ loader.load('textures/background.png', function (texture) {
   scene.background = texture;
 });
 
-// drawPlanet(new PlanetData("Sun", 695508, 0), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
-
-// const sun = {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, }
 
 
+// mesh should be a dynamic param. Use constructor + prototype modification?
+let planets = [
+  {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, textureName: "Volcanic", meshRadius: 7, meshDistanceToSun: 0, mesh: null},
+  {name: "Mercury", radiusInKm:  2439.7, distanceFromSunInAU: 0.4, textureName: "Martian", meshRadius: 0.25, meshDistanceToSun: 58, mesh: null},
+  {name: "Venus", radiusInKm:  6052, distanceFromSunInAU: 0.7, textureName: "Venusian", meshRadius: 0.75, meshDistanceToSun: 67, mesh: null},
+  {name: "Earth", radiusInKm:  6371, distanceFromSunInAU: 1, textureName: "Terrestrial1", meshRadius: 0.75, meshDistanceToSun: 80, mesh: null, camPos: {"x": -30, "y": 0, "z": 50 }, camZoom: 6},
+  {name: "Mars", radiusInKm:  3396, distanceFromSunInAU: 1.5, textureName: "Martian", meshRadius: 0.5, meshDistanceToSun: 95, mesh: null},
+  {name: "Jupiter", radiusInKm:  71492, distanceFromSunInAU: 5.2, textureName: "Gaseous1", meshRadius: 1.5, meshDistanceToSun: 120, mesh: null},
+  {name: "Saturn", radiusInKm:  60268, distanceFromSunInAU: 9.5, textureName: "Saturn2", meshRadius: 1, meshDistanceToSun: 150, mesh: null, hasRing: true},
+  {name: "Uranus", radiusInKm:  25559, distanceFromSunInAU: 19.8, textureName: "Uranus", meshRadius: 0.75, meshDistanceToSun: 175, mesh: null},
+  {name: "Neptune", radiusInKm:  24764, distanceFromSunInAU: 30.1, textureName: "Neptune", meshRadius: 0.75, meshDistanceToSun: 195, mesh: null}
+];
 
 
-
-
-
-function zoomCamera() {
-  camera.left /= 2;
-  camera.right /= 2;
-  camera.top /= 2;
-  camera.bottom /= 2;
-  camera.updateProjectionMatrix();
+function resetCamera(){
+  camTargetPos = defaultCam.position;
+  camTargetZoom = defaultCam.zoom;
 }
 
-function unzoomCamera() {
-  camera.left *= 2;
-  camera.right *= 2;
-  camera.top *= 2;
-  camera.bottom *= 2;
-  camera.updateProjectionMatrix();
+let camTargetPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defaultCam.position.z };
+let camPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defaultCam.position.z };
+let camTargetZoom = defaultCam.zoom;
+let camZoom = defaultCam.zoom;
+
+const camLerpSpeed = 0.01;
+
+
+function focusCameraOnPlanet(planet){
+  camTargetPos = planet.camPos;
+  camTargetZoom = planet.camZoom;
 }
 
-function setCameraParams(cameraParams){
+
+function lerpCamera(){
   
-  // position
-  camera.position.set(cameraParams.position);
+  camPos.x += (camTargetPos.x - camPos.x)*camLerpSpeed;
+  camPos.y += (camTargetPos.y - camPos.y)*camLerpSpeed;
+  camPos.z += (camTargetPos.z - camPos.z)*camLerpSpeed;
+  camZoom += (camTargetZoom - camZoom)*camLerpSpeed;
 
-  // zoom
-  camera.left = cameraParams.size;
-  camera.right = cameraParams.size;
-  camera.top = cameraParams.size;
-  camera.bottom = cameraParams.size;
-
+  camera.position.set(camPos.x, camPos.y, camPos.z);
+  camera.zoom = camZoom;
   camera.updateProjectionMatrix();
 }
+
+
+// to run on each frame
+function lerp(position, targetPosition) {
+  // update position by 20% of the distance between position and target position
+    position.x += (targetPosition.x - position.x)*0.2;
+    position.y += (targetPosition.y - position.y)*0.2;
+    position.z += (targetPosition.z - position.z)*0.2;
+  }
+
 
 
 let time = 0;
 
 const sunXPosition = -115;
 const offset = 50;
-let planets = [];
+
 
 // Cached HTML elements
 const planetNameElement = document.getElementById("planet-name");
@@ -84,42 +122,11 @@ button.addEventListener('click', function() {
 });
 
 
-class PlanetData{
-  constructor(name, radiusInKm, distanceFromSunInAU){
-    this.name = name;
-    this.radiusInKm = radiusInKm;
-    this.distanceFromSunInAU = distanceFromSunInAU;
-  }
-}
 
-class CameraParams{
-  constructor(position, size){
-    this.position = position;
-    this.size = size;
-  }
-}
-
-class Planet{
-  constructor(data, mesh, ringMesh = null){
-    this.data = data;
-    this.mesh = mesh;
-    this.ringMesh = ringMesh;
-  }
-  
-  getName(){
-    return this.data.name;
-  }
-
-  getRadiusInKm(){
-    return this.data.radiusInKm;
-  }
-
-  getDistanceFromSunInAU(){
-    return this.data.distanceFromSunInAU;
-  }
-
-  rotateAroundItself(angle){
-    this.mesh.rotateY(angle);
+// I'd like to make part of all planet objects
+function rotateAroundItself(planet, angle){
+  if(planet.mesh != undefined){
+    planet.mesh.rotateY(angle);
   }
 }
 
@@ -128,31 +135,31 @@ start();
 update();
 
 
-function refreshPlanetInfo(planetData) {
-  planetNameElement.innerText = planetData.name;
-  planetRadiusElement.innerText = "Radius:\n" + planetData.radiusInKm + " km";
-  planetDistanceElement.innerText = "Distance from Sun:\n" + planetData.distanceFromSunInAU + " AU";
+function refreshPlanetInfo(planet) {
+  planetNameElement.innerText = planet.name;
+  planetRadiusElement.innerText = "Radius:\n" + planet.radiusInKm + " km";
+  planetDistanceElement.innerText = "Distance from Sun:\n" + planet.distanceFromSunInAU + " AU";
 }
 
 // on click - callback
 function onPlanetClicked(planet) {
   if(isShowingSideMenu) return;
-  console.log("clicked: " + planet.getName());
+  console.log("clicked: " + planet.name);
+  focusCameraOnPlanet(planet);
   showSideMenu();
-  refreshPlanetInfo(planet.data);
+  refreshPlanetInfo(planet);
 }
 
 
 function showSideMenu() {
   isShowingSideMenu = true;
   sideMenuElement.classList.remove("hid");
-  zoomCamera();
 }
 
 function hideSideMenu() {
   isShowingSideMenu = false;
   sideMenuElement.classList.add("hid");
-  unzoomCamera();
+  resetCamera();
 }
 
 
@@ -166,8 +173,11 @@ function start() {
 function update(){ 
   requestAnimationFrame(update);
   time++;
-  planets.forEach(element => element.rotateAroundItself(0.001));
+  planets.forEach(planet => rotateAroundItself(planet, 0.001));
+  // controls.update();  
+  lerpCamera();
   renderer.render(scene, camera);
+  console.log(camera.position, camera.zoom);
 }
 
 
@@ -210,13 +220,7 @@ document.addEventListener('mousedown', onDocumentMouseDown, false);
 
 
 
-function setupScene() {
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
 
-  camera.position.z = 50;
-  renderer.render(scene, camera);
-}
 
 function setupLights() {
   const pointLightLeft = new THREE.PointLight(0xffffff, 1.25); // sun
@@ -235,23 +239,60 @@ function setupLights() {
 }
 
 function drawAllPlanets() {
-  drawPlanet(new PlanetData("Sun", 695508, 0), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
+  planets.forEach(p => drawPlanet(p));
+  // drawPlanet(sun); // SUN - TODO add a cool shader!
 
-  drawPlanet(new PlanetData("Mercury", 2439.7, 0.4), 0.25, 8 + offset, "Martian");
-  drawPlanet(new PlanetData("Venus", 12104/2, 0.7), 0.75, 17 + offset, "Venusian");
-  drawPlanet(new PlanetData("Earth", 6371, 1), 0.75, 30 + offset, "Terrestrial1");
-  drawPlanet(new PlanetData("Mars", 6792/2, 1.5), 0.75, 45 + offset, "Martian");
-  drawPlanet(new PlanetData("Jupiter", 142984/2, 5.2), 1.5, 70 + offset, "Gaseous1");
-  drawPlanet(new PlanetData("Saturn", 120536/2, 9.5), 1, 100 + offset, "Saturn2", true);
-  drawPlanet(new PlanetData("Uranus", 51118/2, 19.8), 0.75, 125 + offset, "Uranus");
-  drawPlanet(new PlanetData("Neptune", 49528/2, 30.1), 0.75, 145 + offset, "Neptune");
+  // drawPlanet(new PlanetData("Mercury", 2439.7, 0.4), 0.25, 8 + offset, "Martian");
+  // drawPlanet(new PlanetData("Venus", 12104/2, 0.7), 0.75, 17 + offset, "Venusian");
+  // drawPlanet(new PlanetData("Earth", 6371, 1), 0.75, 30 + offset, "Terrestrial1");
+  // drawPlanet(new PlanetData("Mars", 6792/2, 1.5), 0.75, 45 + offset, "Martian");
+  // drawPlanet(new PlanetData("Jupiter", 142984/2, 5.2), 1.5, 70 + offset, "Gaseous1");
+  // drawPlanet(new PlanetData("Saturn", 120536/2, 9.5), 1, 100 + offset, "Saturn2", true);
+  // drawPlanet(new PlanetData("Uranus", 51118/2, 19.8), 0.75, 125 + offset, "Uranus");
+  // drawPlanet(new PlanetData("Neptune", 49528/2, 30.1), 0.75, 145 + offset, "Neptune");
 }
 
 // wanna create an object! - builder for things like the ring
-function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = false) {
+// function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = false) {
+
+//   var loader = new THREE.TextureLoader();
+//   const texturePath = 'textures/' + textureName + '.png';
+
+//   let ring = null;
+
+//   loader.load(texturePath, function (texture) {
+//     const sphereGeometry = new THREE.SphereGeometry(7, 20, 20);
+//     const sphereMat = new THREE.MeshPhongMaterial({ map: texture});
+//     const sphere = new THREE.Mesh(sphereGeometry, sphereMat);
+//     sphere.scale.set(radius, radius, radius);
+//     sphere.position.x = sunXPosition + distanceToSunInUnits;
+//     sphere.rotateY(Math.PI/4);
+//     scene.add(sphere);
+
+//     if(hasRing){
+//       const ringGeometry = new THREE.TorusGeometry(12, 3, 16, 100);
+//       const ringMat = new THREE.MeshPhongMaterial({ map: texture});
+//       ring = new THREE.Mesh(ringGeometry, ringMat);
+//       ring.scale.set(radius, radius, 0.05);
+//       ring.position.x = sunXPosition + distanceToSunInUnits;
+//       ring.rotateX(Math.PI/2.5);
+//       ring.rotateY(-Math.PI/8);
+//       scene.add(ring);
+//     }
+
+//     let planet = new Planet(name, sphere, ring);
+//     sphere.callback = function(){ onPlanetClicked(planet);};
+//     planets.push(planet);
+//   });
+
+
+// }
+
+
+function drawPlanet(planet) {
 
   var loader = new THREE.TextureLoader();
-  const texturePath = 'textures/' + textureName + '.png';
+  const texturePath = 'textures/' + planet.textureName + '.png';
 
   let ring = null;
 
@@ -259,29 +300,29 @@ function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = f
     const sphereGeometry = new THREE.SphereGeometry(7, 20, 20);
     const sphereMat = new THREE.MeshPhongMaterial({ map: texture});
     const sphere = new THREE.Mesh(sphereGeometry, sphereMat);
-    sphere.scale.set(radius, radius, radius);
-    sphere.position.x = sunXPosition + distanceToSunInUnits;
+    sphere.scale.set(planet.meshRadius, planet.meshRadius, planet.meshRadius);
+    sphere.position.x = sunXPosition + planet.meshDistanceToSun;
     sphere.rotateY(Math.PI/4);
     scene.add(sphere);
 
-    if(hasRing){
+    if(planet.hasRing != undefined){
       const ringGeometry = new THREE.TorusGeometry(12, 3, 16, 100);
       const ringMat = new THREE.MeshPhongMaterial({ map: texture});
       ring = new THREE.Mesh(ringGeometry, ringMat);
-      ring.scale.set(radius, radius, 0.05);
-      ring.position.x = sunXPosition + distanceToSunInUnits;
+      ring.scale.set(planet.meshRadius, planet.meshRadius, 0.05);
+      ring.position.x = sunXPosition + planet.meshDistanceToSun;
       ring.rotateX(Math.PI/2.5);
       ring.rotateY(-Math.PI/8);
       scene.add(ring);
     }
 
-    let planet = new Planet(name, sphere, ring);
+    // let planet = new Planet(name, sphere, ring);
+    planet.mesh = sphere;
     sphere.callback = function(){ onPlanetClicked(planet);};
     planets.push(planet);
   });
 
 
 }
-
 
 
