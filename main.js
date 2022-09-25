@@ -5,7 +5,6 @@
 
 import './style.css'
 import * as THREE from 'three';
-// import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import { DefaultLoadingManager } from 'three';
 
 
@@ -17,7 +16,6 @@ const height = window.innerHeight;
 const defaultCam = { left: width / - 16, right: width / 16, top: height / 16, bottom: height / - 16, near: 0.01, far: 1000, position: { x: 0, y: 0, z: 50 }, zoom: 1}
 let camera = new THREE.OrthographicCamera(defaultCam.left, defaultCam.right, defaultCam.top, defaultCam.bottom, defaultCam.near, defaultCam.far);
 
-// let controls;
 
 function setupScene() {
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -25,7 +23,6 @@ function setupScene() {
 
   resetCamera();
   renderer.render(scene, camera);
-  // controls = new OrbitControls(camera, renderer.domElement);
 }
 
 
@@ -63,17 +60,6 @@ let camTargetPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defa
 let camPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defaultCam.position.z };
 let camTargetZoom = defaultCam.zoom;
 let camZoom = defaultCam.zoom;
-
-
-
-
-// // QUITAR CUANDO DESACTIVO LOS CONTROLES!!
-// camera.position.set(camPos.x, camPos.y, camPos.z);
-// camera.zoom = camZoom;
-// camera.updateProjectionMatrix();
-// // END QUITAR
-
-
 
 
 function focusCameraOnPlanet(planet){
@@ -165,7 +151,6 @@ function update(){
   requestAnimationFrame(update);
   time++;
   planets.forEach(planet => rotateAroundItself(planet, 0.001));
-  // controls.update();  
   lerpCamera();
   renderer.render(scene, camera);
   console.log(camera.position, camera.zoom);

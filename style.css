@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 	overflow: hidden;
+  cursor: url('cursor_rocket.png'),auto;
 }
 
 canvas {
@@ -14,6 +15,10 @@ canvas {
   color: white;
   /* margin: 10px 30px 0px 0px; */
   /* align-self: flex-end; */
+}
+
+button {
+  cursor: url('cursor-hover_rocket.png'),auto;
 }
 
 .x {
