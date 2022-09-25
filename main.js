@@ -32,6 +32,15 @@ const planetNameElement = document.getElementById("planet-name");
 const planetRadiusElement = document.getElementById("planet-radius");
 const planetDistanceElement = document.getElementById("planet-distance");
 
+let sideMenuElement = document.getElementById("side-menu");
+
+let button = document.getElementsByClassName("x")[0];
+
+// Add class to the element
+button.addEventListener('click', function() {
+  console.log("close btn click");
+  hideSideMenu();
+});
 
 
 class PlanetData{
@@ -71,12 +80,20 @@ start();
 update();
 
 
-function RefreshPlanetInfo(planetData) {
+function refreshPlanetInfo(planetData) {
   planetNameElement.innerText = planetData.name;
-  planetRadiusElement.innerText = "Radius: " + planetData.radiusInKm + " km";
-  planetDistanceElement.innerText = "Distance from Sun: " + planetData.distanceFromSunInAU + " AU";
+  planetRadiusElement.innerText = "Radius:\n" + planetData.radiusInKm + " km";
+  planetDistanceElement.innerText = "Distance from Sun:\n" + planetData.distanceFromSunInAU + " AU";
 }
 
+function showSideMenu() {
+  sideMenuElement.classList.remove("hid");
+  console.log("show side menu");
+}
+
+function hideSideMenu() {
+  sideMenuElement.classList.add("hid");
+}
 
 
 function start() {
@@ -98,7 +115,8 @@ function update(){
 function objectClickHandler(planet) {
   // window.open('https://pericror.com/', '_blank');
   console.log("clicked: " + planet.getName());
-  RefreshPlanetInfo(planet.data);
+  showSideMenu();
+  refreshPlanetInfo(planet.data);
 }
 
 

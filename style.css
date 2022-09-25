@@ -18,6 +18,10 @@ canvas {
 
 .x {
   align-self: flex-end;
+  border-radius: 100%;
+  background-color: transparent;
+  color: white;
+  border: none;
 }
 
 
