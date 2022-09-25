@@ -10,7 +10,7 @@ import * as THREE from 'three';
 const scene = new THREE.Scene(); 
 const width = window.innerWidth;
 const height = window.innerHeight;
-const camera = new THREE.OrthographicCamera( width / - 16, width / 16, height / 16, height / - 16, 0.1, 1000 );
+let camera = new THREE.OrthographicCamera( width / - 16, width / 16, height / 16, height / - 16, 0.1, 1000 );
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),  
 });
@@ -19,6 +19,46 @@ const loader = new THREE.TextureLoader();
 loader.load('textures/background.png', function (texture) {
   scene.background = texture;
 });
+
+// drawPlanet(new PlanetData("Sun", 695508, 0), 7, 0, "Volcanic"); // SUN - TODO add a cool shader!
+
+// const sun = {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, }
+
+
+
+
+
+
+
+function zoomCamera() {
+  camera.left /= 2;
+  camera.right /= 2;
+  camera.top /= 2;
+  camera.bottom /= 2;
+  camera.updateProjectionMatrix();
+}
+
+function unzoomCamera() {
+  camera.left *= 2;
+  camera.right *= 2;
+  camera.top *= 2;
+  camera.bottom *= 2;
+  camera.updateProjectionMatrix();
+}
+
+function setCameraParams(cameraParams){
+  
+  // position
+  camera.position.set(cameraParams.position);
+
+  // zoom
+  camera.left = cameraParams.size;
+  camera.right = cameraParams.size;
+  camera.top = cameraParams.size;
+  camera.bottom = cameraParams.size;
+
+  camera.updateProjectionMatrix();
+}
 
 
 let time = 0;
@@ -33,6 +73,7 @@ const planetRadiusElement = document.getElementById("planet-radius");
 const planetDistanceElement = document.getElementById("planet-distance");
 
 let sideMenuElement = document.getElementById("side-menu");
+let isShowingSideMenu = false;
 
 let button = document.getElementsByClassName("x")[0];
 
@@ -48,6 +89,13 @@ class PlanetData{
     this.name = name;
     this.radiusInKm = radiusInKm;
     this.distanceFromSunInAU = distanceFromSunInAU;
+  }
+}
+
+class CameraParams{
+  constructor(position, size){
+    this.position = position;
+    this.size = size;
   }
 }
 
@@ -86,13 +134,25 @@ function refreshPlanetInfo(planetData) {
   planetDistanceElement.innerText = "Distance from Sun:\n" + planetData.distanceFromSunInAU + " AU";
 }
 
+// on click - callback
+function onPlanetClicked(planet) {
+  if(isShowingSideMenu) return;
+  console.log("clicked: " + planet.getName());
+  showSideMenu();
+  refreshPlanetInfo(planet.data);
+}
+
+
 function showSideMenu() {
+  isShowingSideMenu = true;
   sideMenuElement.classList.remove("hid");
-  console.log("show side menu");
+  zoomCamera();
 }
 
 function hideSideMenu() {
+  isShowingSideMenu = false;
   sideMenuElement.classList.add("hid");
+  unzoomCamera();
 }
 
 
@@ -111,13 +171,7 @@ function update(){
 }
 
 
-// on click - callback
-function objectClickHandler(planet) {
-  // window.open('https://pericror.com/', '_blank');
-  console.log("clicked: " + planet.getName());
-  showSideMenu();
-  refreshPlanetInfo(planet.data);
-}
+
 
 
 var raycaster = new THREE.Raycaster();
@@ -222,7 +276,7 @@ function drawPlanet(name, radius, distanceToSunInUnits, textureName, hasRing = f
     }
 
     let planet = new Planet(name, sphere, ring);
-    sphere.callback = function(){ objectClickHandler(planet);};
+    sphere.callback = function(){ onPlanetClicked(planet);};
     planets.push(planet);
   });
 
