@@ -31,6 +31,17 @@ button {
   border: none;
 }
 
+#ctx-menu {
+  position: absolute;
+  width: 100;
+  height: 100;
+  color: white;
+  visibility: hidden;
+  background-color: rgba(35, 35, 35, 0.838);
+  padding: 10px;
+  border-radius: 20%;
+}
+
 
 .flex-container-vertical {
   display: flex;

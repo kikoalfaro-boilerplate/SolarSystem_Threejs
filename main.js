@@ -4,6 +4,7 @@
 import './style.css'
 import * as THREE from 'three';
 import { DefaultLoadingManager } from 'three';
+import { lerp } from 'three/src/math/MathUtils';
 
 // // BASIC SCENE SETUP
 const scene = new THREE.Scene(); 
@@ -27,6 +28,34 @@ let outlineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.Back
 let outline = new THREE.Mesh(outlineGeo, outlineMat);
 let isOutlineVisible = false;
 let allowOutline = true;
+
+
+
+
+var ctxMenuElement = document.getElementById("ctx-menu");
+
+function showCtxMenu(planet) {
+  ctxMenuElement.innerHTML = planet.name;
+  ctxMenuElement.style.visibility = "visible";
+
+  // ctxMenuElement.left = mouse.x + 'px';
+  // ctxMenuElement.top = mouse.y + 'px';
+}
+
+function hideCtxMenu() {
+  ctxMenuElement.style.visibility = "hidden";
+}
+
+
+
+// function toXYCoords (pos) {
+//   var vector = projector.projectVector(pos.clone(), camera);
+//   vector.x = (vector.x + 1)/2 * window.innerWidth;
+//   vector.y = -(vector.y - 1)/2 * window.innerHeight;
+//   return vector;
+// }
+
+
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),  
@@ -164,6 +193,18 @@ function update(){
   renderer.render(scene, camera);
 }
 
+function norm(value, min, max) {
+  return (value - min) / (max - min);
+}
+
+// function lerp(norm, min, max) {
+//   return (max - min) * norm + min;
+// }
+
+function map(value, sourceMin, sourceMax, destMin, destMax) {
+  return lerp(norm(value, sourceMin, sourceMax), destMin, destMax);
+}
+
 
 function onDocumentMouseDown(event) {
   event.preventDefault();
@@ -201,6 +242,13 @@ function onDocumentMouseMove(event) {
   } else {
     hideOutline();
   }
+
+  let mappedX = -map(event.clientX, 0, width, 0, renderer.domElement.clientWidth);
+  let mappedY = -map(event.clientY, 0, height, 0, renderer.domElement.clientHeight);
+  const offsetY = 45;
+  // console.log(mappedX + ", " + mappedY);
+  ctxMenuElement.style.left = mappedX + 'px';
+  ctxMenuElement.style.top = (mappedY - offsetY) + 'px';
 }
 
 
@@ -233,6 +281,7 @@ function showOutline(planet) {
   outline.scale.addScalar(0.03);
   scene.add(outline);
   isOutlineVisible = true;
+  showCtxMenu(planet);
 }
 
 
@@ -240,6 +289,7 @@ function hideOutline() {
   if(!isOutlineVisible) return;
   scene.remove(outline);
   isOutlineVisible = false;
+  hideCtxMenu();
 }
 
 
