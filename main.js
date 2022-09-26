@@ -16,6 +16,14 @@ const height = window.innerHeight;
 const defaultCam = { left: width / - 16, right: width / 16, top: height / 16, bottom: height / - 16, near: 0.01, far: 1000, position: { x: 0, y: 0, z: 50 }, zoom: 1}
 let camera = new THREE.OrthographicCamera(defaultCam.left, defaultCam.right, defaultCam.top, defaultCam.bottom, defaultCam.near, defaultCam.far);
 
+//Create outline object (GLOBAL SO FAR)
+let outlineGeo = new THREE.SphereGeometry(7, 20, 20);
+//Notice the second parameter of the material
+let outlineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
+let outline = new THREE.Mesh(outlineGeo, outlineMat);
+let isOutlineVisible = false;
+let allowOutline = true;
+
 
 function setupScene() {
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -99,6 +107,7 @@ let button = document.getElementsByClassName("x")[0];
 
 button.addEventListener('click', function() {
   hideSideMenu();
+  allowOutline = true;
 });
 
 
@@ -128,6 +137,8 @@ function onPlanetClicked(planet) {
   if(isShowingSideMenu) return;
   focusCameraOnPlanet(planet);
   showSideMenu();
+  allowOutline = false;
+  hideOutline();
   refreshPlanetInfo(planet);
 }
 
@@ -157,7 +168,6 @@ function update(){
   planets.forEach(planet => rotateAroundItself(planet, 0.001));
   lerpCamera();
   renderer.render(scene, camera);
-  console.log(camera.position, camera.zoom);
 }
 
 var raycaster = new THREE.Raycaster();
@@ -167,7 +177,6 @@ var mouse = new THREE.Vector2();
 // Handle all clicks to determine of a three.js object was clicked and trigger its callback
 function onDocumentMouseDown(event) {
   event.preventDefault();
-
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -184,7 +193,28 @@ function onDocumentMouseDown(event) {
   }
 }
 
+function onDocumentMouseMove(event) {
+  event.preventDefault();
+  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  var meshes = planets.map(function (v) {
+    return v.mesh;
+  });
+
+  var intersects = raycaster.intersectObjects(meshes);
+
+  if (intersects.length > 0) {
+    showOutline(intersects[0].object.planet);
+  } else {
+    hideOutline();
+  }
+}
+
 document.addEventListener('mousedown', onDocumentMouseDown, false);
+document.addEventListener('mousemove', onDocumentMouseMove, false);
 
 
 function setupLights() {
@@ -208,6 +238,24 @@ function drawAllPlanets() {
 }
 
 
+function showOutline(planet) {
+  if(isOutlineVisible || allowOutline === false) return;
+  //Scale the object up to have an outline (as discussed in previous answer)
+  outline.position.x = planet.mesh.position.x;
+  outline.scale.set(planet.mesh.scale.x, planet.mesh.scale.y, planet.mesh.scale.z);
+  outline.scale.addScalar(0.03);
+  scene.add(outline);
+  isOutlineVisible = true;
+}
+
+
+function hideOutline() {
+  if(!isOutlineVisible) return;
+  scene.remove(outline);
+  isOutlineVisible = false;
+}
+
+
 function drawPlanet(planet) {
 
   var loader = new THREE.TextureLoader();
@@ -216,18 +264,18 @@ function drawPlanet(planet) {
   let ring = null;
 
   loader.load(texturePath, function (texture) {
-    const sphereGeometry = new THREE.SphereGeometry(7, 20, 20);
+    const sphereGeo = new THREE.SphereGeometry(7, 20, 20);
     const sphereMat = new THREE.MeshPhongMaterial({ map: texture});
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMat);
+    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     sphere.scale.set(planet.meshRadius, planet.meshRadius, planet.meshRadius);
     sphere.position.x = sunXPosition + planet.meshDistanceToSun;
     sphere.rotateY(Math.PI/4);
     scene.add(sphere);
 
     if(planet.hasRing != undefined){
-      const ringGeometry = new THREE.TorusGeometry(12, 3, 16, 100);
+      const ringGeo = new THREE.TorusGeometry(12, 3, 16, 100);
       const ringMat = new THREE.MeshPhongMaterial({ map: texture});
-      ring = new THREE.Mesh(ringGeometry, ringMat);
+      ring = new THREE.Mesh(ringGeo, ringMat);
       ring.scale.set(planet.meshRadius, planet.meshRadius, 0.05);
       ring.position.x = sunXPosition + planet.meshDistanceToSun;
       ring.rotateX(Math.PI/2.5);
@@ -235,8 +283,21 @@ function drawPlanet(planet) {
       scene.add(ring);
     }
 
+    // // outline
+    // //Create outline object
+    // let outline_geo = new THREE.SphereGeometry(7, 20, 20);
+    // //Notice the second parameter of the material
+    // let outline_mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
+    // let outline = new THREE.Mesh(outline_geo, outline_mat);
+    // //Scale the object up to have an outline (as discussed in previous answer)
+    // outline.position.x = sphere.position.x;
+    // outline.scale.set(sphere.scale.x, sphere.scale.y, sphere.scale.z);
+    // outline.scale.addScalar(0.03);
+    // scene.add(outline);
+
     planet.mesh = sphere;
     sphere.callback = function(){ onPlanetClicked(planet);};
+    sphere.planet = planet;
     planets.push(planet);
   });
 
