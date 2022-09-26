@@ -2,6 +2,7 @@ body {
 	margin: 0;
 	overflow: hidden;
   cursor: url('cursor_rocket.png'),auto;
+  background-color: black;
 }
 
 canvas {
@@ -18,7 +19,8 @@ canvas {
 }
 
 button {
-  cursor: url('cursor-hover_rocket.png'),auto;
+  /* cursor: url('cursor-hover_rocket.png'),auto; */
+  cursor: url('cursor_rocket.png'),auto;
 }
 
 .x {
