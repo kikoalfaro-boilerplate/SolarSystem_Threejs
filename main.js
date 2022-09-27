@@ -4,7 +4,7 @@
 
 import './style.css'
 import * as THREE from 'three';
-import { DefaultLoadingManager } from 'three';
+import { DefaultLoadingManager, Vector3 } from 'three';
 import { lerp } from 'three/src/math/MathUtils';
 
 // // BASIC SCENE SETUP
@@ -12,15 +12,16 @@ const scene = new THREE.Scene();
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const defaultCam = { left: width / - 16, right: width / 16, top: height / 16, bottom: height / - 16, near: 0.01, far: 1000, position: { x: 0, y: 0, z: 50 }, zoom: 1}
+const defaultCam = { left: width / - 16, right: width / 16, top: height / 16, bottom: height / - 16, near: 0.01, far: 1000, position: new Vector3(0,0,50), rotation: new Vector3(0,0,0), zoom: 1};
 let camera = new THREE.OrthographicCamera(defaultCam.left, defaultCam.right, defaultCam.top, defaultCam.bottom, defaultCam.near, defaultCam.far);
 
-let camTargetPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defaultCam.position.z };
-let camPos = { x: defaultCam.position.x, y: defaultCam.position.y, z: defaultCam.position.z };
+let camTargetPos = new Vector3(defaultCam.position.x, defaultCam.position.y, defaultCam.position.z);
+let camPos = new Vector3(defaultCam.position.x, defaultCam.position.y, defaultCam.position.z);
 let camTargetZoom = defaultCam.zoom;
 let camZoom = defaultCam.zoom;
-const camLerpSpeed = 0.01;
 
+
+const camLerpSpeed = 0.01;
 
 //Create outline object (GLOBAL SO FAR)
 let outlineGeo = new THREE.SphereGeometry(7, 20, 20);
@@ -32,30 +33,16 @@ let allowOutline = true;
 
 
 
-
 var ctxMenuElement = document.getElementById("ctx-menu");
 
 function showCtxMenu(planet) {
   ctxMenuElement.innerHTML = planet.name;
   ctxMenuElement.style.visibility = "visible";
-
-  // ctxMenuElement.left = mouse.x + 'px';
-  // ctxMenuElement.top = mouse.y + 'px';
 }
 
 function hideCtxMenu() {
   ctxMenuElement.style.visibility = "hidden";
 }
-
-
-
-// function toXYCoords (pos) {
-//   var vector = projector.projectVector(pos.clone(), camera);
-//   vector.x = (vector.x + 1)/2 * window.innerWidth;
-//   vector.y = -(vector.y - 1)/2 * window.innerHeight;
-//   return vector;
-// }
-
 
 
 const renderer = new THREE.WebGLRenderer({
@@ -81,12 +68,13 @@ const planetType = document.getElementById("planet-type");
 let sideMenuElement = document.getElementById("side-menu");
 let isShowingSideMenu = false;
 
-let button = document.getElementsByClassName("x")[0];
+let sideMenuButton = document.getElementsByClassName("x")[0];
 
-button.addEventListener('click', function() {
+sideMenuButton.addEventListener('click', function() {
   hideSideMenu();
   allowOutline = true;
 });
+
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
@@ -118,15 +106,19 @@ function setupScene() {
   renderer.render(scene, camera);
 }
 
+
 function resetCamera(){
   camTargetPos = defaultCam.position;
   camTargetZoom = defaultCam.zoom;
 }
 
+
 function focusCameraOnPlanet(planet){
-  camTargetPos = planet.camPos;
+  camTargetPos = new Vector3(planet.camPos.x, planet.camPos.y, planet.camPos.z);
   camTargetZoom = planet.camZoom;
 }
+
+
 
 function lerpCamera(){
   
@@ -192,6 +184,7 @@ function update(){
   planets.forEach(planet => rotateAroundItself(planet, 0.001));
   lerpCamera();
   renderer.render(scene, camera);
+  console.log(camera.position);
 }
 
 function norm(value, min, max) {
