@@ -1,5 +1,6 @@
 // https://trello.com/b/xVqjzlqh/solar-system-threejs
 // https://threejs.org/examples/
+// https://stemkoski.github.io/Three.js/
 
 import './style.css'
 import * as THREE from 'three';
@@ -97,7 +98,7 @@ let planets = [
   {name: "Sun", radiusInKm: 695508, distanceFromSunInAU: 0, textureName: "Volcanic", meshRadius: 7, meshDistanceToSun: 0, mesh: null, camPos: {"x": -90, "y": 0, "z": 50 }, camZoom: 0.773, desc:"The Sun is a yellow dwarf star, a hot ball of glowing gases at the heart of our solar system. Its gravity holds everything from the biggest planets to tiny debris in its orbit.", type:"Yellow Dwarf Star"},
   {name: "Mercury", radiusInKm:  2439.7, distanceFromSunInAU: 0.4, textureName: "Martian", meshRadius: 0.25, meshDistanceToSun: 58, mesh: null, camPos: {"x": -52, "y": 0, "z": 50 }, camZoom: 6, desc:"Mercury—the smallest planet in our solar system and closest to the Sun—is only slightly larger than Earth's Moon. Mercury is the fastest planet, zipping around the Sun every 88 Earth days.", type:"Terrestrial Planet"},
   {name: "Venus", radiusInKm:  6052, distanceFromSunInAU: 0.7, textureName: "Venusian", meshRadius: 0.75, meshDistanceToSun: 67, mesh: null, camPos: {"x": -45, "y": 0, "z": 50 }, camZoom: 6, desc:"Venus spins slowly in the opposite direction from most planets. A thick atmosphere traps heat in a runaway greenhouse effect, making it the hottest planet in our solar system.", type:"Terrestrial Planet"},
-  {name: "Earth", radiusInKm:  6371, distanceFromSunInAU: 1, textureName: "Terrestrial1", meshRadius: 0.75, meshDistanceToSun: 80, mesh: null, camPos: {"x": -35, "y": 0, "z": 50 }, camZoom: 6, desc:"Earth—our home planet—is the only place we know of so far that’s inhabited by living things. It's also the only planet in our solar system with liquid water on the surface.", type:"Terrestrial Planet"},
+  {name: "Earth", radiusInKm:  6371, distanceFromSunInAU: 1, textureName: "Earth", meshRadius: 0.75, meshDistanceToSun: 80, mesh: null, camPos: {"x": -35, "y": 0, "z": 50 }, camZoom: 6, desc:"Earth—our home planet—is the only place we know of so far that’s inhabited by living things. It's also the only planet in our solar system with liquid water on the surface.", type:"Terrestrial Planet"},
   {name: "Mars", radiusInKm:  3396, distanceFromSunInAU: 1.5, textureName: "Martian", meshRadius: 0.5, meshDistanceToSun: 95, mesh: null, camPos: {"x": -20, "y": 0, "z": 50 }, camZoom: 7.78, desc:"Mars is a dusty, cold, desert world with a very thin atmosphere. There is strong evidence Mars was—billions of years ago—wetter and warmer, with a thicker atmosphere.", type:"Terrestrial Planet"},
   {name: "Jupiter", radiusInKm:  71492, distanceFromSunInAU: 5.2, textureName: "Gaseous1", meshRadius: 1.5, meshDistanceToSun: 120, mesh: null, camPos: {"x": 5, "y": 0.87, "z": 50 }, camZoom: 3.425, desc:"Jupiter is more than twice as massive than the other planets of our solar system combined. The giant planet's Great Red spot is a centuries-old storm bigger than Earth.", type:"Gas Giant"},
   {name: "Saturn", radiusInKm:  60268, distanceFromSunInAU: 9.5, textureName: "Saturn2", meshRadius: 1, meshDistanceToSun: 150, mesh: null, hasRing: true, camPos: {"x": 40, "y": 1.22, "z": 50 }, camZoom: 3.424, desc:"Adorned with a dazzling, complex system of icy rings, Saturn is unique in our solar system. The other giant planets have rings, but none are as spectacular as Saturn's.", type:"Gas Giant"},
@@ -303,6 +304,8 @@ function drawPlanet(planet) {
   loader.load(texturePath, function (texture) {
     const sphereGeo = new THREE.SphereGeometry(7, 20, 20);
     const sphereMat = new THREE.MeshPhongMaterial({ map: texture});
+    
+
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     sphere.scale.set(planet.meshRadius, planet.meshRadius, planet.meshRadius);
     sphere.position.x = sunXPosition + planet.meshDistanceToSun;
