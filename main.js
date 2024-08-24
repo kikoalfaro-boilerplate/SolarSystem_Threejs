@@ -64,6 +64,7 @@ const planetRadiusElement = document.getElementById("planet-radius");
 const planetDistanceElement = document.getElementById("planet-distance");
 const planetDescription = document.getElementById("planet-desc");
 const planetType = document.getElementById("planet-type");
+const planetImgElement = document.getElementById("planet-img");
 
 let sideMenuElement = document.getElementById("side-menu");
 let isShowingSideMenu = false;
@@ -146,6 +147,7 @@ function refreshPlanetInfo(planet) {
   planetDistanceElement.innerText = "Distance from Sun:\n" + planet.distanceFromSunInAU + " AU";
   planetDescription.innerText = planet.desc;
   planetType.innerText = planet.type;
+  planetImgElement.src = `pictures/${planet.name.toLowerCase()}.png`;
 }
 
 // on click - callback
